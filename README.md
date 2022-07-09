@@ -1,6 +1,6 @@
 # Cinema
 
-[![Build Status](https://app.travis-ci.com/mikhail43435/job4j_cinema.svg?branch=master)](https://app.travis-ci.com/github/mikhail43435/job4j_dreamjob)
+[![Build Status](https://app.travis-ci.com/mikhail43435/job4j_cinema.svg?branch=master)](https://app.travis-ci.com/github/mikhail43435/job4j_cinema)
 
 #### Сервис продажи билетов для киноеатра
 - Отображение занятых и свободных мест
