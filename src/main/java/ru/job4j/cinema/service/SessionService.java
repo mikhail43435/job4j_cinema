@@ -2,7 +2,7 @@ package ru.job4j.cinema.service;
 
 import net.jcip.annotations.ThreadSafe;
 import org.springframework.stereotype.Service;
-import ru.job4j.cinema.model.Session;
+import ru.job4j.cinema.model.FilmSession;
 import ru.job4j.cinema.store.SessionStore;
 
 import java.util.List;
@@ -18,19 +18,20 @@ public class SessionService {
         this.store = store;
     }
 
-    public Session add(Session session) {
-        return store.add(session);
+    public FilmSession add(FilmSession filmSession) {
+        return store.add(filmSession);
     }
 
-    public void update(Session session) {
-        store.update(session);
+    public void update(FilmSession filmSession) {
+        store.update(filmSession);
     }
 
-    public Optional<Session> findById(int id) {
+    public Optional<FilmSession> findById(int id) {
         return store.findById(id);
     }
 
-    public List<Session> findAll() {
+    public List<FilmSession> findAll() {
         return store.findAll();
     }
+
 }

@@ -4,7 +4,8 @@ import net.jcip.annotations.ThreadSafe;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import ru.job4j.cinema.model.Session;
+import ru.job4j.cinema.model.FilmSession;
+import ru.job4j.cinema.service.HallService;
 import ru.job4j.cinema.service.SessionService;
 
 @ThreadSafe
@@ -12,9 +13,9 @@ import ru.job4j.cinema.service.SessionService;
 public class SessionController {
 
     private final SessionService service;
-    private final SessionService hallService;
+    private final HallService hallService;
 
-    public SessionController(SessionService sessionService, SessionService hallService) {
+    public SessionController(SessionService sessionService, HallService hallService) {
         this.service = sessionService;
         this.hallService = hallService;
     }
@@ -33,21 +34,20 @@ public class SessionController {
     }
 
     @PostMapping("/updateSession")
-    public String updateSession(@ModelAttribute Session session) {
-        service.update(session);
+    public String updateSession(@ModelAttribute FilmSession filmSession) {
+        service.update(filmSession);
         return "redirect:/sessions";
     }
 
     @GetMapping("/addSession")
     public String addSession(Model model) {
-        model.addAttribute("session", new Session(0, "New session", null));
         model.addAttribute("halls", hallService.findAll());
         return "addSession";
     }
 
     @PostMapping("/createSession")
-    public String createSession(@ModelAttribute Session session) {
-        service.add(session);
+    public String createSession(@ModelAttribute FilmSession filmSession) {
+        service.add(filmSession);
         return "redirect:/sessions";
     }
 

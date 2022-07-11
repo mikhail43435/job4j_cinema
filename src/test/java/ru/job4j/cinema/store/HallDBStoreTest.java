@@ -1,9 +1,17 @@
 package ru.job4j.cinema.store;
 
+import org.apache.commons.dbcp2.BasicDataSource;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import ru.job4j.cinema.model.Hall;
 import ru.job4j.cinema.Main;
+import ru.job4j.cinema.service.LoggerService;
+import ru.job4j.cinema.service.Seat;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,9 +19,29 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 class HallDBStoreTest {
 
+    private static HallDBStore store;
+    private static BasicDataSource pool;
+
+    @BeforeAll
+    static void init() {
+        pool = new Main().loadPool();
+        store = new HallDBStore(pool);
+        try (var connection = pool.getConnection();
+             PreparedStatement prepareStatement =
+                     connection.prepareStatement("DELETE FROM customers")) {
+            prepareStatement.execute();
+        } catch (Exception e) {
+            LoggerService.LOGGER.error("Exception in CustomerDBStoreTest.init method", e);
+        }
+    }
+
+    @AfterAll
+    static void finish() throws SQLException {
+        pool.close();
+    }
+
     @Test
-    void whenAddHall() {
-        HallStore store = new HallDBStore(new Main().loadPool());
+    void whenAddAndFindById() {
         Hall itemToAdd = new Hall(0, "hall 1", 10, 20);
         itemToAdd.setId(store.add(itemToAdd).getId());
         Optional<Hall> itemFromDB = store.findById(itemToAdd.getId());
@@ -26,7 +54,6 @@ class HallDBStoreTest {
 
     @Test
     void whenFindAll() {
-        HallStore store = new HallDBStore(new Main().loadPool());
         List<Hall> list = store.findAll();
         Hall itemToAdd1 = new Hall(0, "hall 1", 10, 20);
         itemToAdd1.setId(store.add(itemToAdd1).getId());
@@ -41,7 +68,6 @@ class HallDBStoreTest {
 
     @Test
     void whenUpdate() {
-        HallStore store = new HallDBStore(new Main().loadPool());
         Hall itemToAdd = new Hall(0, "hall 1", 10, 20);
         itemToAdd.setId(store.add(itemToAdd).getId());
         Hall itemToUpdate = new Hall(itemToAdd.getId(), "hall 1 updated", 11, 22);
@@ -51,5 +77,17 @@ class HallDBStoreTest {
         assertThat(itemFromDBAfterUpdate.getName()).isEqualTo(itemToUpdate.getName());
         assertThat(itemFromDBAfterUpdate.getNumOfRows()).isEqualTo(itemToUpdate.getNumOfRows());
         assertThat(itemFromDBAfterUpdate.getNumOfSeats()).isEqualTo(itemToUpdate.getNumOfSeats());
+    }
+
+    @Test
+    void whenGetSeats() {
+        List<Seat> expected = List.of(
+                new Seat(1, 1),
+                new Seat(1, 2),
+                new Seat(2, 1),
+                new Seat(2, 2)
+        );
+        List<Seat> result = store.getSeats(new Hall(0, "test hall", 2, 2));
+        assertThat(result).isEqualTo(expected);
     }
 }

@@ -1,17 +1,17 @@
 package ru.job4j.cinema.store;
 
-import ru.job4j.cinema.model.Session;
+import ru.job4j.cinema.model.FilmSession;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface SessionStore {
 
-    Session add(Session session);
+    FilmSession add(FilmSession filmSession);
 
-    void update(Session session);
+    void update(FilmSession filmSession);
 
-    Optional<Session> findById(int id);
+    Optional<FilmSession> findById(int id);
 
-    List<Session> findAll();
+    List<FilmSession> findAll();
 }

@@ -5,14 +5,19 @@ import java.util.Objects;
 public class Ticket {
 
     private int id;
-    private Session session;
+    private FilmSession filmSession;
     private Customer customer;
     private int rowNum;
     private int seatNum;
 
-    public Ticket(int id, Session session, Customer customer, int rowNum, int seatNum) {
+    public Ticket(
+            int id,
+            FilmSession filmSession,
+            Customer customer,
+            int rowNum,
+            int seatNum) {
         this.id = id;
-        this.session = session;
+        this.filmSession = filmSession;
         this.customer = customer;
         this.rowNum = rowNum;
         this.seatNum = seatNum;
@@ -26,12 +31,12 @@ public class Ticket {
         this.id = id;
     }
 
-    public Session getSession() {
-        return session;
+    public FilmSession getSession() {
+        return filmSession;
     }
 
-    public void setSession(Session session) {
-        this.session = session;
+    public void setSession(FilmSession filmSession) {
+        this.filmSession = filmSession;
     }
 
     public Customer getCustomer() {

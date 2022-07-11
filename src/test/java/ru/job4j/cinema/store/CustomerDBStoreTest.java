@@ -1,7 +1,7 @@
 package ru.job4j.cinema.store;
 
 import org.apache.commons.dbcp2.BasicDataSource;
-import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import ru.job4j.cinema.Main;
@@ -11,6 +11,7 @@ import ru.job4j.cinema.model.Customer;
 import ru.job4j.cinema.service.LoggerService;
 
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,23 +21,28 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class CustomerDBStoreTest {
 
     private static CustomerStore store;
-    private BasicDataSource pool;
+    private static BasicDataSource pool;
 
     @BeforeAll
     static void init() {
-        BasicDataSource pool = new Main().loadPool();
+        pool = new Main().loadPool();
         store = new CustomerDBStore(pool);
         try (var connection = pool.getConnection();
              PreparedStatement prepareStatement =
-                     connection.prepareStatement("DELETE FROM customers")) {
+                     connection.prepareStatement("DELETE FROM tickets; DELETE FROM customers")) {
             prepareStatement.execute();
         } catch (Exception e) {
             LoggerService.LOGGER.error("Exception in CustomerDBStoreTest.init method", e);
         }
     }
 
+    @AfterAll
+    static void finish() throws SQLException {
+        pool.close();
+    }
+
     @Test
-    void whenAddCustomer() {
+    void whenAddCustomerAndFindById() {
         Customer itemToAdd = new Customer(0, "customer 1", "email1", "12", "13");
         itemToAdd.setId(store.add(itemToAdd).getId());
         Optional<Customer> itemFromDB = store.findById(itemToAdd.getId());
@@ -114,8 +120,7 @@ class CustomerDBStoreTest {
                 "email5",
                 "521",
                 "513");
-        Exception thrown = assertThrows(
-                DuplicateCustomerEmailException.class,
+        assertThrows(DuplicateCustomerEmailException.class,
                 () -> store.add(itemToAddWithDuplicateField));
     }
 
@@ -132,8 +137,7 @@ class CustomerDBStoreTest {
                 "email61",
                 "611",
                 "613");
-        Exception thrown = assertThrows(
-                DuplicateCustomerPhoneException.class,
+        assertThrows(DuplicateCustomerPhoneException.class,
                 () -> store.add(itemToAddWithDuplicateField));
     }
 }

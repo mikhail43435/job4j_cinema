@@ -37,31 +37,38 @@
 </nav>
 <div class="container">
     <div class="row">
-        <div class="card" style="width: 100%">
-            <div class="card-header">
-                New hall add
-            </div>
-            <div class="card-body">
-                <form th:action="@{/createSession}" method="POST">
-                    <input type="hidden" name="id" value="0"/>
-                    <div class="form-group">
-                        <label for="name">Имя</label>
-                        <input type="text" class="form-control" name="name" id="name">
-                    </div>
-                    <div class="form-group">
-                        <label for="hall.id">Select hall</label>
-                        <select class="form-control" id="hall.id" name="hall.id">
-                            <option th:each="hall : ${halls}" th:value="${hall.id}" th:text="${hall.name}">
-                            </option>
-                        </select>
-                    </div>
-                    <div>
-                        <button type="submit" class="btn btn-primary">Сохранить</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Film session</th>
+                <th scope="col">Hall</th>
+                <th scope="col">Row number</th>
+                <th scope="col">Seat number</th>
+                <th scope="col">Customer name</th>
+                <th scope="col">Edit</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="ticket: ${tickets}">
+                <td th:text="${ticket.id}"></td>
+                <td th:text="${ticket.filmSession.name}"/>
+                <td th:text="${ticket.filmSession.hall.name}"/>
+                <td th:text="${ticket.seatNum}"/>
+                <td th:text="${ticket.rowNum}"/>
+                <td th:text="${ticket.customer.name}"/>
+                <td><a th:href="@{|/updateTicket/${ticket.id}|}">
+                    <button type="submit" class="btn btn-primary">Edit</button>
+                </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
     </div>
+    <td><a th:href="@{|/selectSession|}">
+        <button type="submit" class="btn btn-primary">Add new ticket</button>
+    </a>
+    </td>
 </div>
 </body>
 </html>

@@ -11,27 +11,27 @@ import ru.job4j.cinema.service.HallService;
 @Controller
 public class HallController {
 
-    private final HallService service;
+    private final HallService hallService;
 
     public HallController(HallService hallService) {
-        this.service = hallService;
+        this.hallService = hallService;
     }
 
     @GetMapping("/halls")
     public String posts(Model model) {
-        model.addAttribute("halls", service.findAll());
+        model.addAttribute("halls", hallService.findAll());
         return "halls";
     }
 
     @GetMapping("/updateHall/{hallId}")
     public String formUpdateHall(Model model, @PathVariable("hallId") int id) {
-        model.addAttribute("hall", service.findById(id));
+        model.addAttribute("hall", hallService.findById(id));
         return "updateHall";
     }
 
     @PostMapping("/updateHall")
     public String updateHall(@ModelAttribute Hall hall) {
-        service.update(hall);
+        hallService.update(hall);
         return "redirect:/halls";
     }
 
@@ -43,7 +43,7 @@ public class HallController {
 
     @PostMapping("/createHall")
     public String createHall(@ModelAttribute Hall hall) {
-        service.add(hall);
+        hallService.add(hall);
         return "redirect:/halls";
     }
 

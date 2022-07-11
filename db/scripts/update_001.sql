@@ -28,5 +28,6 @@ CREATE TABLE IF NOT EXISTS tickets (
     session_id INT NOT NULL REFERENCES sessions(id),
     row_num INT NOT NULL,
     seat_num INT NOT NULL,
-    customer_id INT NOT NULL REFERENCES customers(id)
+    customer_id INT REFERENCES customers(id),
+    UNIQUE (session_id, row_num, seat_num)
 );

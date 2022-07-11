@@ -4,6 +4,7 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.stereotype.Repository;
 import ru.job4j.cinema.model.Hall;
 import ru.job4j.cinema.service.LoggerService;
+import ru.job4j.cinema.service.Seat;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -99,6 +100,17 @@ public class HallDBStore implements HallStore {
             }
         } catch (Exception e) {
             LoggerService.LOGGER.error("Exception in HallDBStore.findAll method", e);
+        }
+        return result;
+    }
+
+    @Override
+    public List<Seat> getSeats(Hall hall) {
+        List<Seat> result = new ArrayList<>();
+        for (int rowNum = 1; rowNum <= hall.getNumOfRows(); rowNum++) {
+            for (int seatNum = 1; seatNum <= hall.getNumOfSeats(); seatNum++) {
+                result.add(new Seat(rowNum, seatNum));
+            }
         }
         return result;
     }

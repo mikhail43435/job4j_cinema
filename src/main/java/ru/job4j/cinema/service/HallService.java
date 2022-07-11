@@ -33,4 +33,8 @@ public class HallService {
     public List<Hall> findAll() {
         return store.findAll();
     }
+
+    public List<Seat> getSeats(Hall hall) {
+        return store.getSeats(hall);
+    }
 }

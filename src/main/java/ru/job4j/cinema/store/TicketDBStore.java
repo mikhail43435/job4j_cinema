@@ -2,10 +2,11 @@ package ru.job4j.cinema.store;
 
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.stereotype.Repository;
+import ru.job4j.cinema.exceptions.DuplicateTicketFieldsSessionRowSeatException;
+import ru.job4j.cinema.model.Customer;
+import ru.job4j.cinema.model.FilmSession;
 import ru.job4j.cinema.model.Ticket;
-import ru.job4j.cinema.service.CustomerService;
-import ru.job4j.cinema.service.SessionService;
-import ru.job4j.cinema.service.LoggerService;
+import ru.job4j.cinema.service.*;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,17 +20,20 @@ public class TicketDBStore implements TicketStore {
     private final BasicDataSource pool;
     private final SessionService sessionService;
     private final CustomerService customerService;
+    private final HallService hallService;
 
     public TicketDBStore(BasicDataSource pool,
                          SessionService sessionService,
-                         CustomerService customerService) {
+                         CustomerService customerService,
+                         HallService hallService) {
         this.pool = pool;
         this.sessionService = sessionService;
         this.customerService = customerService;
+        this.hallService = hallService;
     }
 
     @Override
-    public Ticket add(Ticket ticket) {
+    public Ticket add(Ticket ticket) throws DuplicateTicketFieldsSessionRowSeatException {
         String param = "INSERT INTO tickets(session_id, row_num, seat_num, customer_id) "
                 + "VALUES (?,?,?,?)";
         try (var connection = pool.getConnection();
@@ -46,6 +50,15 @@ public class TicketDBStore implements TicketStore {
                 }
             }
         } catch (Exception e) {
+            if (e.getMessage().contains("PUBLIC.CONSTRAINT_INDEX_DBF ON"
+                    + " PUBLIC.TICKETS(SESSION_ID, ROW_NUM, SEAT_NUM)")) {
+                LoggerService.LOGGER.error(
+                        String.format("Attempt to add new ticket with existing fields:"
+                                        + " session <%s> row <%s> seat <%s>"
+                                        + "in TicketDBStore.add method",
+                                ticket.getSession(), ticket.getSeatNum(), ticket.getSeatNum()));
+                throw new DuplicateTicketFieldsSessionRowSeatException();
+            }
             LoggerService.LOGGER.error("Exception in TicketDBStore.add method", e);
         }
         return ticket;
@@ -64,9 +77,18 @@ public class TicketDBStore implements TicketStore {
             prepareStatement.setInt(2, ticket.getRowNum());
             prepareStatement.setInt(3, ticket.getSeatNum());
             prepareStatement.setInt(4, ticket.getCustomer().getId());
-            prepareStatement.setInt(4, ticket.getId());
+            prepareStatement.setInt(5, ticket.getId());
             prepareStatement.execute();
         } catch (Exception e) {
+            if (e.getMessage().contains("PUBLIC.CONSTRAINT_INDEX_DBF ON"
+                    + " PUBLIC.TICKETS(SESSION_ID, ROW_NUM, SEAT_NUM)")) {
+                LoggerService.LOGGER.error(
+                        String.format("Attempt to update ticket by new with existing fields:"
+                                        + " session <%s> row <%s> seat <%s>"
+                                        + "in TicketDBStore.update method",
+                                ticket.getSession(), ticket.getSeatNum(), ticket.getSeatNum()));
+                throw new DuplicateTicketFieldsSessionRowSeatException();
+            }
             LoggerService.LOGGER.error("Exception in TicketDBStore.update method", e);
         }
     }
@@ -117,6 +139,47 @@ public class TicketDBStore implements TicketStore {
             }
         } catch (Exception e) {
             LoggerService.LOGGER.error("Exception in TicketDBStore.findAll method", e);
+        }
+        return result;
+    }
+
+    @Override
+    public List<Ticket> findBySession(FilmSession session) {
+        List<Ticket> result = new ArrayList<>();
+        try (var connection = pool.getConnection();
+             var prepareStatement =
+                     connection.prepareStatement("SELECT * FROM tickets WHERE session_id = ?")
+        ) {
+            prepareStatement.setInt(1, session.getId());
+            try (var resultSet = prepareStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    result.add(new Ticket(
+                            resultSet.getInt("id"),
+                            sessionService.findById(resultSet.getInt("session_id")).get(),
+                            customerService.findById(resultSet.getInt("customer_id")).get(),
+                            resultSet.getInt("row_num"),
+                            resultSet.getInt("seat_num")
+                    ));
+                }
+            }
+        } catch (Exception e) {
+            LoggerService.LOGGER.error("Exception in TicketDBStore.findById method", e);
+        }
+        return result;
+    }
+
+    @Override
+    public List<Seat> getAvailableSeats(FilmSession session) {
+        List<Seat> seatsOccupied = getSeatsFromTickets(findBySession(session));
+        List<Seat> seatsFullList = hallService.getSeats(session.getHall());
+        seatsFullList.removeAll(seatsOccupied);
+        return seatsFullList;
+    }
+
+    private List<Seat> getSeatsFromTickets(List<Ticket> tickets) {
+        List<Seat> result = new ArrayList<>();
+        for (Ticket ticket : tickets) {
+            result.add(new Seat(ticket.getRowNum(), ticket.getSeatNum()));
         }
         return result;
     }

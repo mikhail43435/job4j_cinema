@@ -36,27 +36,24 @@
     </div>
 </nav>
 <div class="container">
-    <div class="row">
+    <div class="row pt-3">
         <div class="card" style="width: 100%">
             <div class="card-header">
-                New hall add
+                New ticket options / select seat
             </div>
             <div class="card-body">
-                <form th:action="@{/createSession}" method="POST">
-                    <input type="hidden" name="id" value="0"/>
+                <form th:action="@{/customerDetails}" method="GET" th:object="${seat}">
                     <div class="form-group">
-                        <label for="name">Имя</label>
-                        <input type="text" class="form-control" name="name" id="name">
-                    </div>
-                    <div class="form-group">
-                        <label for="hall.id">Select hall</label>
-                        <select class="form-control" id="hall.id" name="hall.id">
-                            <option th:each="hall : ${halls}" th:value="${hall.id}" th:text="${hall.name}">
+                        <label for="seat">Select seat</label>
+                        <select class="form-control" id="seat" name="seat">
+                            <option th:each="seat : ${availableSeats}"
+                                    th:value="${seat}"
+                                    th:text="|Row ${seat.rowNum}    seat ${seat.seatNum} |">
                             </option>
                         </select>
                     </div>
                     <div>
-                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                        <button type="submit" class="btn btn-primary">New (select seat)</button>
                     </div>
                 </form>
             </div>

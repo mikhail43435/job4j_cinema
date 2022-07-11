@@ -24,7 +24,6 @@ public class CustomerDBStore implements CustomerStore {
 
     @Override
     public Customer add(Customer customer) {
-        //Optional<Customer> result = Optional.empty();
         String param = "INSERT INTO customers(username, email, phone, password) VALUES (?,?,?,?)";
         try (var connection = pool.getConnection();
              PreparedStatement prepareStatement =
@@ -41,16 +40,18 @@ public class CustomerDBStore implements CustomerStore {
             }
         } catch (Exception e) {
             if (e.getMessage().contains("PUBLIC.CONSTRAINT_INDEX_6 ON PUBLIC.CUSTOMERS(EMAIL)")) {
-                LoggerService.LOGGER.error("Add new customer exception "
-                        + "in CustomerDBStore.add method | duplicate email <"
-                        + customer.getEmail() + ">", e);
+                LoggerService.LOGGER.error(
+                        String.format("Attempt to add new customer with existing email <%s> "
+                                        + "in CustomerDBStore.add method",
+                                customer.getEmail()));
                 throw new DuplicateCustomerEmailException();
             }
 
             if (e.getMessage().contains("PUBLIC.CONSTRAINT_INDEX_62 ON PUBLIC.CUSTOMERS(PHONE)")) {
-                LoggerService.LOGGER.error("Add new customer exception "
-                        + "in CustomerDBStore.add method | duplicate phone <"
-                        + customer.getEmail() + ">", e);
+                LoggerService.LOGGER.error(
+                        String.format("Attempt to add new customer with existing phone <%s> "
+                                        + "in CustomerDBStore.add method",
+                                customer.getPhone()));
                 throw new DuplicateCustomerPhoneException();
             }
             LoggerService.LOGGER.error("Exception in CustomerDBStore.add method", e);

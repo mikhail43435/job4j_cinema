@@ -29,11 +29,9 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
-            <a class="nav-item nav-link" th:href="@{/index}">Главная</a>
-            <a class="nav-item nav-link active" href="#">Вакансии <span class="sr-only">(current)</span></a>
-            <a class="nav-item nav-link" th:href="@{/addPost}">Добавить вакансию</a>
-            <a class="nav-item nav-link" th:href="@{/candidates}">Кандидаты</a>
-            <a class="nav-item nav-link" th:href="@{/addCandidate}">Добавить кандидата</a>
+            <a class="nav-item nav-link" th:href="@{/halls}">Halls</a>
+            <a class="nav-item nav-link" th:href="@{/sessions}">Film sessions</a>
+            <a class="nav-item nav-link" th:href="@{/tickets}">Tickets</a>
         </div>
     </div>
 </nav>
@@ -62,7 +60,7 @@
         </table>
     </div>
     <td><a th:href="@{|/addSession|}">
-        <button type="submit" class="btn btn-primary">Add new session</button>
+        <button type="submit" class="btn btn-primary">Add new filmSession</button>
     </a>
     </td>
 </div>

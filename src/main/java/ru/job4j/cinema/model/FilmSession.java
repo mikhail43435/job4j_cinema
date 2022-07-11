@@ -2,16 +2,21 @@ package ru.job4j.cinema.model;
 
 import java.util.Objects;
 
-public class Session {
+public class FilmSession {
 
     private int id;
     private String name;
     private Hall hall;
 
-    public Session() {
+    public FilmSession() {
     }
 
-    public Session(int id, String name, Hall hall) {
+    public FilmSession(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public FilmSession(int id, String name, Hall hall) {
         this.id = id;
         this.name = name;
         this.hall = hall;
@@ -42,6 +47,15 @@ public class Session {
     }
 
     @Override
+    public String toString() {
+        return "Session{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + ", hall=" + hall
+                + '}';
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -49,8 +63,8 @@ public class Session {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Session session = (Session) o;
-        return id == session.id;
+        FilmSession filmSession = (FilmSession) o;
+        return id == filmSession.id;
     }
 
     @Override
