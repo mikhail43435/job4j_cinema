@@ -54,8 +54,6 @@ class TicketDBStoreTest {
                 "2314",
                 "test password");
         testCustomer.setId(customerService.add(testCustomer).getId());
-        //Customer testCustomer = testCustomer;
-
         store = new TicketDBStore(pool, sessionService, customerService, hallService);
     }
 
