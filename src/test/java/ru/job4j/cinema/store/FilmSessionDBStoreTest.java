@@ -21,6 +21,7 @@ class FilmSessionDBStoreTest {
     private static Hall hall;
     private static BasicDataSource pool;
     private static BasicDataSource basicDataSource;
+    private static SessionStore sessionStore;
 
     @BeforeAll
     public static void init() {
@@ -29,6 +30,7 @@ class FilmSessionDBStoreTest {
         hall = new Hall(0, "hall 1", 1, 2);
         hall.setId(hallService.add(hall).getId());
         basicDataSource = new Main().loadPool();
+        sessionStore = new SessionDBStore(basicDataSource, hallService);
     }
 
     @AfterAll
@@ -38,10 +40,9 @@ class FilmSessionDBStoreTest {
 
     @Test
     void whenAddAndFindById() {
-        SessionStore store = new SessionDBStore(basicDataSource, hallService);
         FilmSession itemToAdd = new FilmSession(0, "session 1", hall);
-        itemToAdd.setId(store.add(itemToAdd).getId());
-        Optional<FilmSession> itemFromDB = store.findById(itemToAdd.getId());
+        itemToAdd.setId(sessionStore.add(itemToAdd).getId());
+        Optional<FilmSession> itemFromDB = sessionStore.findById(itemToAdd.getId());
         assertThat(itemFromDB).isPresent();
         assertThat(itemFromDB.get().getId()).isEqualTo(itemToAdd.getId());
         assertThat(itemFromDB.get().getName()).isEqualTo(itemToAdd.getName());
@@ -50,24 +51,22 @@ class FilmSessionDBStoreTest {
 
     @Test
     void whenFindAll() {
-        SessionStore store = new SessionDBStore(basicDataSource, hallService);
-        List<FilmSession> list = store.findAll();
+        List<FilmSession> list = sessionStore.findAll();
         FilmSession itemToAdd1 = new FilmSession(0, "session 1", hall);
-        itemToAdd1.setId(store.add(itemToAdd1).getId());
+        itemToAdd1.setId(sessionStore.add(itemToAdd1).getId());
         FilmSession itemToAdd2 = new FilmSession(0, "session 2", hall);
-        itemToAdd2.setId(store.add(itemToAdd2).getId());
+        itemToAdd2.setId(sessionStore.add(itemToAdd2).getId());
         FilmSession itemToAdd3 = new FilmSession(0, "session 3", hall);
-        itemToAdd3.setId(store.add(itemToAdd3).getId());
+        itemToAdd3.setId(sessionStore.add(itemToAdd3).getId());
         List<FilmSession> listOfNewItems = List.of(itemToAdd1, itemToAdd2, itemToAdd3);
         list.addAll(listOfNewItems);
-        assertThat(store.findAll()).isEqualTo(list);
+        assertThat(sessionStore.findAll()).isEqualTo(list);
     }
 
     @Test
     void whenUpdate() {
-        SessionStore store = new SessionDBStore(basicDataSource, hallService);
         FilmSession itemToAdd = new FilmSession(0, "session 1", hall);
-        itemToAdd.setId(store.add(itemToAdd).getId());
+        itemToAdd.setId(sessionStore.add(itemToAdd).getId());
 
         Hall hallForUpdate = new Hall(0, "hall 1 for update", 1, 2);
         hallForUpdate.setId(hallService.add(hall).getId());
@@ -75,9 +74,9 @@ class FilmSessionDBStoreTest {
         FilmSession itemToUpdate = new FilmSession(itemToAdd.getId(),
                 "session 1 updated",
                 hallForUpdate);
-        store.update(itemToUpdate);
+        sessionStore.update(itemToUpdate);
 
-        FilmSession itemFromDBAfterUpdate = store.findById(itemToUpdate.getId()).get();
+        FilmSession itemFromDBAfterUpdate = sessionStore.findById(itemToUpdate.getId()).get();
         assertThat(itemFromDBAfterUpdate.getId()).isEqualTo(itemToUpdate.getId());
         assertThat(itemFromDBAfterUpdate.getName()).isEqualTo(itemToUpdate.getName());
         assertThat(itemFromDBAfterUpdate.getHall()).isEqualTo(itemToUpdate.getHall());

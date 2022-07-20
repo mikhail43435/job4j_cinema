@@ -15,5 +15,7 @@ public interface CustomerStore {
 
     Optional<Customer> findByEmail(String email);
 
+    Optional<Customer> findByEmailAndPassword(String email, String password);
+
     List<Customer> findAll();
 }

@@ -1,4 +1,4 @@
-package ru.job4j.cinema.service;
+package ru.job4j.cinema.model;
 
 import java.util.Objects;
 
@@ -47,8 +47,8 @@ public class Seat {
 
     @Override
     public String toString() {
-        return "Seat{"
-                + "rowNum=" + rowNum
-                + ", seatNum=" + seatNum + "}";
+        return "Seat <"
+                + "row " + rowNum
+                + ", seat in the row " + seatNum + ">";
     }
 }

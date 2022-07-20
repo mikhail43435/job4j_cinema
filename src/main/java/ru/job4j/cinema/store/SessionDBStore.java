@@ -93,12 +93,42 @@ public class SessionDBStore implements SessionStore {
                 while (resultSet.next()) {
                     result.add(new FilmSession(resultSet.getInt("id"),
                             resultSet.getString("name"),
+                            hallService.findById(resultSet.getInt(("hall_id"))).get()));
+                }
+            }
+        } catch (Exception e) {
+            LoggerService.LOGGER.error("Exception in SessionDBStore.findAll method", e);
+        }
+        return result;
+    }
+
+    public List<FilmSession> findAllSessionsWithAvailableSeats() {
+        String sqlQuery = "SELECT id, name, hall_id, seats_left FROM (SELECT sessions.id "
+                + "AS id, sessions.name, "
+                + "hall_seats.id AS hall_id, (hall_seat_amount - COALESCE(tickets_num,0)) "
+                + "AS seats_left FROM sessions\n"
+                + "LEFT JOIN (SELECT id, name, (num_of_rows * num_of_seats) "
+                + "AS hall_seat_amount FROM halls) "
+                + "AS hall_seats ON sessions.hall_id = hall_seats.id\n"
+                + "LEFT JOIN (SELECT session_id, COUNT(*) AS tickets_num FROM "
+                + "tickets GROUP BY session_id) "
+                + "AS tickets_count ON sessions.id = tickets_count.session_id) AS seats\n"
+                + "WHERE seats_left > 0;";
+        List<FilmSession> result = new ArrayList<>();
+        try (var connection = pool.getConnection();
+             var prepareStatement =
+                     connection.prepareStatement(sqlQuery)
+        ) {
+            try (var resultSet = prepareStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    result.add(new FilmSession(resultSet.getInt("id"),
+                            resultSet.getString("name"),
                             hallService.findById(resultSet.getInt(("hall_id"))).get()
                     ));
                 }
             }
         } catch (Exception e) {
-            LoggerService.LOGGER.error("Exception in SessionDBStore.findAll method", e);
+            LoggerService.LOGGER.error("Exception in TicketDBStore.findAll method", e);
         }
         return result;
     }

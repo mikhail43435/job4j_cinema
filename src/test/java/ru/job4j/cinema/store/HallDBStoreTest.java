@@ -7,11 +7,10 @@ import org.junit.jupiter.api.Test;
 import ru.job4j.cinema.model.Hall;
 import ru.job4j.cinema.Main;
 import ru.job4j.cinema.service.LoggerService;
-import ru.job4j.cinema.service.Seat;
+import ru.job4j.cinema.model.Seat;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 

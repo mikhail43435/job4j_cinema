@@ -28,10 +28,8 @@
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-        <div class="navbar-nav">
-            <a class="nav-item nav-link" th:href="@{/halls}">Halls</a>
-            <a class="nav-item nav-link" th:href="@{/sessions}">Film sessions</a>
-            <a class="nav-item nav-link" th:href="@{/tickets}">Tickets</a>
+        <div class="navbar-nav nav-pills">
+            [(${htmlMenuCodeToInject})]
         </div>
     </div>
 </nav>
@@ -44,7 +42,7 @@
             <div class="card-body">
                 <form th:action="@{/halls}" method="GET">
                     <div class="form-group">
-                        <label>Error occurred while creating new hall item</label>
+                        <label><span th:text="${errorMessage}"></span></label>
                     </div>
                     <div>
                         <button type="submit" class="btn btn-primary">Go to hall list</button>

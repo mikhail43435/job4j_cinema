@@ -6,15 +6,11 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import ru.job4j.cinema.Main;
 import ru.job4j.cinema.exceptions.DuplicateTicketFieldsSessionRowSeatException;
-import ru.job4j.cinema.model.Customer;
-import ru.job4j.cinema.model.Hall;
-import ru.job4j.cinema.model.FilmSession;
-import ru.job4j.cinema.model.Ticket;
+import ru.job4j.cinema.model.*;
 import ru.job4j.cinema.service.*;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,6 +25,7 @@ class TicketDBStoreTest {
     private static Customer testCustomer;
     private static HallService hallService;
     private static SessionService sessionService;
+    private static CustomerService customerService;
 
     @BeforeAll
     static void init() {
@@ -50,11 +47,11 @@ class TicketDBStoreTest {
         testFilmSession = new FilmSession(0, "test session", testSHall);
         testFilmSession.setId(sessionService.add(testFilmSession).getId());
 
-        CustomerService customerService = new CustomerService(new CustomerDBStore(pool));
+        customerService = new CustomerService(new CustomerDBStore(pool));
         testCustomer = new Customer(0,
                 "test name",
                 "test email",
-                "test phone",
+                "2314",
                 "test password");
         testCustomer.setId(customerService.add(testCustomer).getId());
         //Customer testCustomer = testCustomer;
@@ -74,7 +71,7 @@ class TicketDBStoreTest {
         Optional<Ticket> itemFromDB = store.findById(itemToAdd.getId());
         assertThat(itemFromDB).isPresent();
         assertThat(itemFromDB.get().getId()).isEqualTo(itemToAdd.getId());
-        assertThat(itemFromDB.get().getSession()).isEqualTo(itemToAdd.getSession());
+        assertThat(itemFromDB.get().getFilmSession()).isEqualTo(itemToAdd.getFilmSession());
         assertThat(itemFromDB.get().getCustomer()).isEqualTo(itemToAdd.getCustomer());
         assertThat(itemFromDB.get().getRowNum()).isEqualTo(itemToAdd.getRowNum());
         assertThat(itemFromDB.get().getSeatNum()).isEqualTo(itemToAdd.getSeatNum());
@@ -122,9 +119,9 @@ class TicketDBStoreTest {
 
         Optional<Ticket> itemFromDBAfterUpdate = store.findById(itemToUpdate.getId());
         assertThat(itemFromDBAfterUpdate).isPresent();
-
         assertThat(itemFromDBAfterUpdate.get().getId()).isEqualTo(itemToUpdate.getId());
-        assertThat(itemFromDBAfterUpdate.get().getSession()).isEqualTo(itemToUpdate.getSession());
+        assertThat(itemFromDBAfterUpdate.get().getFilmSession()).
+                isEqualTo(itemToUpdate.getFilmSession());
         assertThat(itemFromDBAfterUpdate.get().getRowNum()).isEqualTo(itemToUpdate.getRowNum());
         assertThat(itemFromDBAfterUpdate.get().getSeatNum()).isEqualTo(itemToUpdate.getSeatNum());
     }
@@ -176,29 +173,23 @@ class TicketDBStoreTest {
         List<Seat> expected = List.of(
                 new Seat(1, 2),
                 new Seat(2, 1));
-        assertThat(store.getAvailableSeats(session)).isEqualTo(expected);
+        assertThat(store.getAvailableSeatsForSession(session)).isEqualTo(expected);
     }
 
-//
-//    @Test
-//    void whenGenerateNewTickets() {
-//        FilmSession filmSession = new FilmSession(0, "123",
-//                hallService.add(new Hall(
-//                        0,
-//                        "whenGenerateNewTickets test hall",
-//                        2,
-//                        2)));
-//        Customer emptyCustomer = Optional.empty();
-//
-//        List<Ticket> expected = new ArrayList<>();
-//        expected.add(new Ticket(0, filmSession, emptyCustomer, 1, 1));
-//        expected.add(new Ticket(0, filmSession, emptyCustomer, 1, 2));
-//        expected.add(new Ticket(0, filmSession, emptyCustomer, 2, 1));
-//        expected.add(new Ticket(0, filmSession, emptyCustomer, 2, 2));
-//
-//        List<Ticket> result = store.generateNewTickets(filmSession);
-//
-//        assertThat(result).isEqualTo(expected);
-//    }
-
+    @Test
+    void whenFindByCustomerId() {
+        Customer testCustomerForThisTest = new Customer(0,
+                "test name whenFindByCustomerId",
+                "test email whenFindByCustomerId",
+                "78678",
+                "test password whenFindByCustomerId");
+        testCustomerForThisTest.setId(customerService.add(testCustomerForThisTest).getId());
+        Ticket ticket1 = new Ticket(0, testFilmSession, testCustomerForThisTest, 61, 62);
+        ticket1.setId(store.add(ticket1).getId());
+        Ticket ticket2 = new Ticket(0, testFilmSession, testCustomerForThisTest, 64, 65);
+        ticket2.setId(store.add(ticket2).getId());
+        List<Ticket> expected = List.of(ticket1, ticket2);
+        List<Ticket> result = store.findByCustomerId(testCustomerForThisTest.getId());
+        assertThat(result).isEqualTo(expected);
+    }
 }

@@ -18,9 +18,6 @@ public class Hall {
     }
 
     public Hall(int id, String name, int numOfRows, int numOfSeats) {
-        if (numOfRows < 1 || numOfSeats < 1 || name.isEmpty() || name.isBlank()) {
-            throw new IllegalArgumentException("Illegal param of the new hall!");
-        }
         this.id = id;
         this.name = name;
         this.numOfRows = numOfRows;

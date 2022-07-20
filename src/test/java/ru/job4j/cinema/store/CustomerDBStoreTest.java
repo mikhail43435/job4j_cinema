@@ -1,5 +1,6 @@
 package ru.job4j.cinema.store;
 
+import org.apache.catalina.util.CustomObjectInputStream;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -8,6 +9,7 @@ import ru.job4j.cinema.Main;
 import ru.job4j.cinema.exceptions.DuplicateCustomerEmailException;
 import ru.job4j.cinema.exceptions.DuplicateCustomerPhoneException;
 import ru.job4j.cinema.model.Customer;
+import ru.job4j.cinema.model.User;
 import ru.job4j.cinema.service.LoggerService;
 
 import java.sql.PreparedStatement;
@@ -139,5 +141,23 @@ class CustomerDBStoreTest {
                 "613");
         assertThrows(DuplicateCustomerPhoneException.class,
                 () -> store.add(itemToAddWithDuplicateField));
+    }
+
+    @Test
+    void whenAddCustomerAndFindByEmailAndPassword() {
+        Customer itemToAdd = new Customer(0,
+                "customer 72",
+                "email71",
+                "711",
+                "713");
+        itemToAdd.setId(store.add(itemToAdd).getId());
+        Optional<Customer> itemFromDB =
+                store.findByEmailAndPassword(itemToAdd.getEmail(), itemToAdd.getPassword());
+        assertThat(itemFromDB).isPresent();
+        assertThat(itemFromDB.get().getId()).isEqualTo(itemToAdd.getId());
+        assertThat(itemFromDB.get().getName()).isEqualTo(itemToAdd.getName());
+        assertThat(itemFromDB.get().getEmail()).isEqualTo(itemToAdd.getEmail());
+        assertThat(itemFromDB.get().getPhone()).isEqualTo(itemToAdd.getPhone());
+        assertThat(itemFromDB.get().getPassword()).isEqualTo(itemToAdd.getPassword());
     }
 }

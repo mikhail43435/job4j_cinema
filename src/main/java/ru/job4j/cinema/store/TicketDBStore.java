@@ -3,8 +3,8 @@ package ru.job4j.cinema.store;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.stereotype.Repository;
 import ru.job4j.cinema.exceptions.DuplicateTicketFieldsSessionRowSeatException;
-import ru.job4j.cinema.model.Customer;
 import ru.job4j.cinema.model.FilmSession;
+import ru.job4j.cinema.model.Seat;
 import ru.job4j.cinema.model.Ticket;
 import ru.job4j.cinema.service.*;
 
@@ -39,7 +39,7 @@ public class TicketDBStore implements TicketStore {
         try (var connection = pool.getConnection();
              PreparedStatement prepareStatement =
                      connection.prepareStatement(param, PreparedStatement.RETURN_GENERATED_KEYS)) {
-            prepareStatement.setInt(1, ticket.getSession().getId());
+            prepareStatement.setInt(1, ticket.getFilmSession().getId());
             prepareStatement.setInt(2, ticket.getRowNum());
             prepareStatement.setInt(3, ticket.getSeatNum());
             prepareStatement.setInt(4, ticket.getCustomer().getId());
@@ -51,12 +51,13 @@ public class TicketDBStore implements TicketStore {
             }
         } catch (Exception e) {
             if (e.getMessage().contains("PUBLIC.CONSTRAINT_INDEX_DBF ON"
-                    + " PUBLIC.TICKETS(SESSION_ID, ROW_NUM, SEAT_NUM)")) {
+                    + " PUBLIC.TICKETS(SESSION_ID, ROW_NUM, SEAT_NUM)")
+                    || e.getMessage().contains("tickets_session_id_row_num_seat_num_key")) {
                 LoggerService.LOGGER.error(
                         String.format("Attempt to add new ticket with existing fields:"
                                         + " session <%s> row <%s> seat <%s>"
                                         + "in TicketDBStore.add method",
-                                ticket.getSession(), ticket.getSeatNum(), ticket.getSeatNum()));
+                                ticket.getFilmSession(), ticket.getSeatNum(), ticket.getSeatNum()));
                 throw new DuplicateTicketFieldsSessionRowSeatException();
             }
             LoggerService.LOGGER.error("Exception in TicketDBStore.add method", e);
@@ -73,7 +74,7 @@ public class TicketDBStore implements TicketStore {
                      + " seat_num = ?,"
                      + " customer_id = ?"
                      + "WHERE id = ?")) {
-            prepareStatement.setInt(1, ticket.getSession().getId());
+            prepareStatement.setInt(1, ticket.getFilmSession().getId());
             prepareStatement.setInt(2, ticket.getRowNum());
             prepareStatement.setInt(3, ticket.getSeatNum());
             prepareStatement.setInt(4, ticket.getCustomer().getId());
@@ -86,7 +87,7 @@ public class TicketDBStore implements TicketStore {
                         String.format("Attempt to update ticket by new with existing fields:"
                                         + " session <%s> row <%s> seat <%s>"
                                         + "in TicketDBStore.update method",
-                                ticket.getSession(), ticket.getSeatNum(), ticket.getSeatNum()));
+                                ticket.getFilmSession(), ticket.getSeatNum(), ticket.getSeatNum()));
                 throw new DuplicateTicketFieldsSessionRowSeatException();
             }
             LoggerService.LOGGER.error("Exception in TicketDBStore.update method", e);
@@ -169,7 +170,32 @@ public class TicketDBStore implements TicketStore {
     }
 
     @Override
-    public List<Seat> getAvailableSeats(FilmSession session) {
+    public List<Ticket> findByCustomerId(int id) {
+        List<Ticket> result = new ArrayList<>();
+        try (var connection = pool.getConnection();
+             var prepareStatement =
+                     connection.prepareStatement("SELECT * FROM tickets WHERE customer_id = ?")
+        ) {
+            prepareStatement.setInt(1, id);
+            try (var resultSet = prepareStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    result.add(new Ticket(
+                            resultSet.getInt("id"),
+                            sessionService.findById(resultSet.getInt("session_id")).get(),
+                            customerService.findById(resultSet.getInt("customer_id")).get(),
+                            resultSet.getInt("row_num"),
+                            resultSet.getInt("seat_num")
+                    ));
+                }
+            }
+        } catch (Exception e) {
+            LoggerService.LOGGER.error("Exception in TicketDBStore.findByCustomerId method", e);
+        }
+        return result;
+    }
+
+    @Override
+    public List<Seat> getAvailableSeatsForSession(FilmSession session) {
         List<Seat> seatsOccupied = getSeatsFromTickets(findBySession(session));
         List<Seat> seatsFullList = hallService.getSeats(session.getHall());
         seatsFullList.removeAll(seatsOccupied);

@@ -3,6 +3,7 @@ package ru.job4j.cinema.service;
 import net.jcip.annotations.ThreadSafe;
 import org.springframework.stereotype.Service;
 import ru.job4j.cinema.model.FilmSession;
+import ru.job4j.cinema.model.Seat;
 import ru.job4j.cinema.model.Ticket;
 import ru.job4j.cinema.store.TicketStore;
 
@@ -39,7 +40,11 @@ public class TicketService {
         return store.findBySession(session);
     }
 
+    public List<Ticket> findByCustomerId(int id) {
+        return store.findByCustomerId(id);
+    }
+
     public List<Seat> getAvailableSeats(FilmSession session) {
-        return store.getAvailableSeats(session);
+        return store.getAvailableSeatsForSession(session);
     }
 }

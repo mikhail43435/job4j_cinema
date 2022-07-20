@@ -31,11 +31,11 @@ public class Ticket {
         this.id = id;
     }
 
-    public FilmSession getSession() {
+    public FilmSession getFilmSession() {
         return filmSession;
     }
 
-    public void setSession(FilmSession filmSession) {
+    public void setFilmSession(FilmSession filmSession) {
         this.filmSession = filmSession;
     }
 
@@ -73,6 +73,17 @@ public class Ticket {
         }
         Ticket ticket = (Ticket) o;
         return id == ticket.id;
+    }
+
+    @Override
+    public String toString() {
+        return "Ticket{"
+                + "id=" + id
+                + ", filmSession=" + filmSession
+                + ", customer=" + customer
+                + ", rowNum=" + rowNum
+                + ", seatNum=" + seatNum
+                + '}';
     }
 
     @Override

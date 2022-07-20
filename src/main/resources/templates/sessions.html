@@ -28,10 +28,8 @@
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-        <div class="navbar-nav">
-            <a class="nav-item nav-link" th:href="@{/halls}">Halls</a>
-            <a class="nav-item nav-link" th:href="@{/sessions}">Film sessions</a>
-            <a class="nav-item nav-link" th:href="@{/tickets}">Tickets</a>
+        <div class="navbar-nav nav-pills">
+            [(${htmlMenuCodeToInject})]
         </div>
     </div>
 </nav>
@@ -42,25 +40,34 @@
             <tr>
                 <th scope="col">#</th>
                 <th scope="col">Name</th>
-                <th scope="col">Hall</th>
-                <th scope="col">Edit</th>
+                <th scope="col">Hall (id, name, rows/seats)</th>
+                <th scope="col">Available tickets</th>
+                <th scope="col" th:if="${sessionType == 'user'}">Edit</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="ses: ${sessions}">
-                <td th:text="${ses.id}"></td>
-                <td th:text="${ses.name}"/>
-                <td th:text="${ses.hall.name}"/>
-                <td><a th:href="@{|/updateSession/${ses.id}|}">
-                    <button type="submit" class="btn btn-primary">Edit</button>
-                </a>
+
+            <tr th:each="ses,iterStat : ${sessions}">
+                <td th:text="${ses.id}">ID</td>
+                <td th:text="${ses.name}">ID</td>
+                <td th:text="${ses.hall.id + '. <'
+                                            + ses.hall.name + '>  '
+                + ses.hall.numOfRows + '/' + ses.hall.numOfSeats}"/>
+                <td th:text="${availableSeats.get(iterStat.index)}"/>
+                <td th:if="${sessionType == 'user'}">
+                    <a th:href="@{|/updateSession/${ses.id}|}">
+                        <button type="submit" class="btn btn-primary">Edit</button>
+                    </a>
                 </td>
             </tr>
             </tbody>
         </table>
     </div>
-    <td><a th:href="@{|/addSession|}">
+    <td><a th:if="${sessionType == 'user'}" th:href="@{|/addSession|}">
         <button type="submit" class="btn btn-primary">Add new filmSession</button>
+    </a>
+    <td><a th:if="${sessionType == 'guest' || sessionType == 'customer'}" th:href="@{|/sessionSelection|}">
+        <button type="submit" class="btn btn-primary">Buy a new ticket</button>
     </a>
     </td>
 </div>

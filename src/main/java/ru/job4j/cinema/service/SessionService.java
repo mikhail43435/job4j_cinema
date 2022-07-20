@@ -34,4 +34,7 @@ public class SessionService {
         return store.findAll();
     }
 
+    public List<FilmSession> findAllSessionsWithAvailableSeats() {
+        return store.findAllSessionsWithAvailableSeats();
+    }
 }

@@ -4,7 +4,7 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.stereotype.Repository;
 import ru.job4j.cinema.model.Hall;
 import ru.job4j.cinema.service.LoggerService;
-import ru.job4j.cinema.service.Seat;
+import ru.job4j.cinema.model.Seat;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

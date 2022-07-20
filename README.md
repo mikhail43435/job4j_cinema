@@ -3,18 +3,29 @@
 [![Build Status](https://app.travis-ci.com/mikhail43435/job4j_cinema.svg?branch=master)](https://app.travis-ci.com/github/mikhail43435/job4j_cinema)
 
 #### Сервис продажи билетов для киноеатра
+
+- Возможность создания и редактирования записей для кинозалов, киносеансов
 - Отображение занятых и свободных мест
-- Блокировка для выбора занятых мест
+- Блокировка приобретения билета при выборе занятого места
+- Валидация вводимых пользователеями и администраторами портала данных с выводом кастомизированных сообщений об ошибках
 - Покупка билета, создание аккаунта для покупателя
-- Проверка места во время оплаты
+- Возможность просмотра пользователем данных своей учетной записи и списка купленных билетов
+- Создание аккаунта для пользователя (администраторов) портала
+- Проверка доступности выбранного места и доступных киносеансов во время процедуры покупки билета 
 
 #### Используемые технологии
+
+- Spring boot
 - JDBC (PostgreSQL)
-- Spring
 - Bootstrap
-- JS/jQuery/AJAX
+- Thymeleaf
 - Logback
 - Slf4j
+- Junit
+- Liquidbase
+- h2
+- Assertj
+- Mockito
 - Travis CI
 
-`java` `spring` `postgresql` `liquidbase` `h2` `logback` `slf4j` `assertj` `mockito` `travis CI`
+`java` `spring boot` `thymeleaf` `postgresql` `liquidbase` `h2` `logback` `slf4j` `junit` `assertj` `mockito` `travis CI`

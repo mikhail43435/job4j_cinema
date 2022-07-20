@@ -1,7 +1,7 @@
 package ru.job4j.cinema.store;
 
 import ru.job4j.cinema.model.Hall;
-import ru.job4j.cinema.service.Seat;
+import ru.job4j.cinema.model.Seat;
 
 import java.util.List;
 import java.util.Optional;

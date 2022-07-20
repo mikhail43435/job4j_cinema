@@ -7,6 +7,13 @@ import org.springframework.web.bind.annotation.*;
 import ru.job4j.cinema.model.FilmSession;
 import ru.job4j.cinema.service.HallService;
 import ru.job4j.cinema.service.SessionService;
+import ru.job4j.cinema.service.TicketService;
+import ru.job4j.cinema.util.MenuHTMLGenerator;
+import ru.job4j.cinema.util.SessionTypeHandler;
+
+import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
+import java.util.List;
 
 @ThreadSafe
 @Controller
@@ -14,22 +21,37 @@ public class SessionController {
 
     private final SessionService service;
     private final HallService hallService;
+    private final TicketService ticketService;
 
-    public SessionController(SessionService sessionService, HallService hallService) {
+    public SessionController(SessionService sessionService,
+                             HallService hallService,
+                             TicketService ticketService) {
         this.service = sessionService;
         this.hallService = hallService;
+        this.ticketService = ticketService;
     }
 
     @GetMapping("/sessions")
-    public String sessions(Model model) {
-        model.addAttribute("sessions", service.findAll());
+    public String sessions(Model model, HttpSession session) {
+        List<FilmSession> listOfSessions = service.findAll();
+        model.addAttribute("sessions", listOfSessions);
+        List<Integer> numOfAvailableSeats = new ArrayList<>();
+        for (FilmSession ses : listOfSessions) {
+            numOfAvailableSeats.add(ticketService.getAvailableSeats(ses).size());
+        }
+        model.addAttribute("availableSeats", numOfAvailableSeats);
+        model.addAttribute("sessionType", SessionTypeHandler.getCurrentSessionType(session));
+        model.addAttribute("htmlMenuCodeToInject", MenuHTMLGenerator.generate(session, "sessions"));
         return "sessions";
     }
 
     @GetMapping("/updateSession/{sessionId}")
-    public String formUpdateSession(Model model, @PathVariable("sessionId") int id) {
+    public String formUpdateSession(Model model,
+                                    @PathVariable("sessionId") int id,
+                                    HttpSession session) {
         model.addAttribute("ses", service.findById(id).get());
         model.addAttribute("halls", hallService.findAll());
+        model.addAttribute("htmlMenuCodeToInject", MenuHTMLGenerator.generate(session, "sessions"));
         return "updateSession";
     }
 
@@ -40,8 +62,9 @@ public class SessionController {
     }
 
     @GetMapping("/addSession")
-    public String addSession(Model model) {
+    public String addSession(Model model, HttpSession session) {
         model.addAttribute("halls", hallService.findAll());
+        model.addAttribute("htmlMenuCodeToInject", MenuHTMLGenerator.generate(session, "sessions"));
         return "addSession";
     }
 
@@ -50,17 +73,4 @@ public class SessionController {
         service.add(filmSession);
         return "redirect:/sessions";
     }
-
-/*
-    @ExceptionHandler({Exception.class})
-    public String handleException(Exception e, Model model) {
-        return "redirect:/errorWhenCreateNewSession";
-    }
-*/
-
-/*    @GetMapping("/errorWhenCreateNewSession")
-    public String errorWhenCreateNewSession(Model model) {
-        //model.addAttribute("session", new Session(0, "New session name", 1, 1));
-        return "/errorWhenCreateNewSession";
-    }*/
 }

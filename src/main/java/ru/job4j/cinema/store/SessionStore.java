@@ -14,4 +14,6 @@ public interface SessionStore {
     Optional<FilmSession> findById(int id);
 
     List<FilmSession> findAll();
+
+    List<FilmSession> findAllSessionsWithAvailableSeats();
 }

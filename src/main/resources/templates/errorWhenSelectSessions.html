@@ -1,5 +1,5 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<!doctype html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -17,8 +17,8 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
             integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
             crossorigin="anonymous"></script>
-
-    <title>Cinema</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>Cinema portal</title>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -37,23 +37,23 @@
     <div class="row pt-3">
         <div class="card" style="width: 100%">
             <div class="card-header">
-                Update film session
+                Error
             </div>
             <div class="card-body">
-                <form th:action="@{/updateSession}" method="POST" th:object="${ses}">
-                    <input type="hidden" name="id" th:field="*{id}"/>
+                <form th:action="@{/sessions}" method="GET">
                     <div class="form-group">
-                        <label for="name">Name</label>
-                        <input type="text" class="form-control" name="name" id="name" th:field="*{name}">
+                        <label>Error occurred while getting available film sessions.</label>
+                    </div>
+                    <div class="form-group">
+                        <label>No available film sessions has been found.</label>
                     </div>
                     <div>
-                        <button type="submit" class="btn btn-primary">Save</button>
+                        <button type="submit" class="btn btn-primary">Go to film sessions list</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-</div>
 </div>
 </body>
 </html>

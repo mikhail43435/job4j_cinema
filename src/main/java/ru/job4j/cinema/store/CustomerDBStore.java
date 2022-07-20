@@ -39,15 +39,16 @@ public class CustomerDBStore implements CustomerStore {
                 }
             }
         } catch (Exception e) {
-            if (e.getMessage().contains("PUBLIC.CONSTRAINT_INDEX_6 ON PUBLIC.CUSTOMERS(EMAIL)")) {
+            if (e.getMessage().contains("PUBLIC.CONSTRAINT_INDEX_6 ON PUBLIC.CUSTOMERS(EMAIL)")
+                    || e.getMessage().contains("customers_email_key")) {
                 LoggerService.LOGGER.error(
                         String.format("Attempt to add new customer with existing email <%s> "
                                         + "in CustomerDBStore.add method",
                                 customer.getEmail()));
                 throw new DuplicateCustomerEmailException();
             }
-
-            if (e.getMessage().contains("PUBLIC.CONSTRAINT_INDEX_62 ON PUBLIC.CUSTOMERS(PHONE)")) {
+            if (e.getMessage().contains("PUBLIC.CONSTRAINT_INDEX_62 ON PUBLIC.CUSTOMERS(PHONE)")
+                    || e.getMessage().contains("customers_phone_key")) {
                 LoggerService.LOGGER.error(
                         String.format("Attempt to add new customer with existing phone <%s> "
                                         + "in CustomerDBStore.add method",
@@ -125,6 +126,34 @@ public class CustomerDBStore implements CustomerStore {
             }
         } catch (Exception e) {
             LoggerService.LOGGER.error("Exception in CustomerDBStore.findById method", e);
+        }
+        return result;
+    }
+
+    @Override
+    public Optional<Customer> findByEmailAndPassword(String email, String password) {
+        Optional<Customer> result = Optional.empty();
+        try (var connection = pool.getConnection();
+             var prepareStatement =
+                     connection.prepareStatement("SELECT * FROM customers "
+                             + "                        WHERE email = ? AND password = ?")
+        ) {
+            prepareStatement.setString(1, email);
+            prepareStatement.setString(2, password);
+            try (var resultSet = prepareStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    result = Optional.of(
+                            new Customer(resultSet.getInt("id"),
+                                    resultSet.getString("username"),
+                                    resultSet.getString("email"),
+                                    resultSet.getString("phone"),
+                                    resultSet.getString("password")
+                            ));
+                }
+            }
+        } catch (Exception e) {
+            LoggerService.LOGGER.error("Exception in "
+                    + "CustomerDBStore.findByEmailAndPassword method", e);
         }
         return result;
     }

@@ -1,5 +1,5 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<!doctype html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -17,50 +17,51 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
             integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
             crossorigin="anonymous"></script>
-
-    <title>Работа мечты</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>Cinema portal</title>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="#">Работа мечты</a>
+    <a class="navbar-brand" href="#">Cinema portal</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
             aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="navbar-nav">
-        <a class="nav-item nav-link" th:href="@{/halls}">Halls</a>
-        <a class="nav-item nav-link" th:href="@{/sessions}">Film sessions</a>
-        <a class="nav-item nav-link" th:href="@{/tickets}">Tickets</a>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav nav-pills">
+            [(${htmlMenuCodeToInject})]
+        </div>
     </div>
 </nav>
 <div class="container">
     <div class="row pt-3">
         <div class="card" style="width: 100%">
             <div class="card-header">
-                Редатирование вакансии
+                New ticket options and customer details
             </div>
             <div class="card-body">
-                <form th:action="@{/updateSession}" method="POST" th:object="${ses}">
-                    <input type="hidden" name="id" th:field="*{id}"/>
+                <form th:action="@{/createTicket}" method="POST" th:object="${customer}">
+                    <input type="hidden" id="id" name="id" value="0"/>
+                    <input type="hidden" name="password" value=""/>
                     <div class="form-group">
-                        <label for="name">Имя</label>
-                        <input type="text" class="form-control" name="name" id="name" th:field="*{name}">
+                        <label>Film session: <span th:text="${filmSession.name}"></span></label>
                     </div>
                     <div class="form-group">
-                        <label for="hall.id">Город</label>
-                        <select class="form-control" id="hall.id" name="hall.id">
-                            <option th:each="hall : ${halls}" th:value="${hall.id}" th:text="${hall.name}"
-                                    th:selected="${hall.id==ses.hall.id}"></option>
+                        <label for="seatString">Select seat</label>
+                        <select class="form-control" id="seatString" name="seatString">
+                            <option th:each="seat : ${seats}"
+                                    th:value="${seat}"
+                                    th:text="${seat}">
+                            </option>
                         </select>
                     </div>
                     <div>
-                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                        <button type="submit" class="btn btn-primary">Buy a ticket</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-</div>
 </div>
 </body>
 </html>
