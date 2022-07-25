@@ -28,6 +28,7 @@ import static ru.job4j.cinema.util.UserHandler.getUserOfCurrentSession;
 @Controller
 public class CustomerController {
 
+    private static final String HTML_MENU_CODE_TO_INJECT_STRING = "htmlMenuCodeToInject";
     private final CustomerService customerService;
     private final TicketService ticketService;
 
@@ -39,7 +40,7 @@ public class CustomerController {
     @GetMapping("/customers")
     public String customers(Model model, HttpSession session) {
         model.addAttribute("customers", customerService.findAll());
-        model.addAttribute("htmlMenuCodeToInject",
+        model.addAttribute(HTML_MENU_CODE_TO_INJECT_STRING,
                 MenuHTMLGenerator.generate(session, "customers"));
         return "customers";
     }
@@ -48,7 +49,7 @@ public class CustomerController {
     public String customerTickets(Model model, HttpSession session) {
         model.addAttribute("tickets",
                 ticketService.findByCustomerId(getCustomerOfCurrentSession(session).getId()));
-        model.addAttribute("htmlMenuCodeToInject",
+        model.addAttribute(HTML_MENU_CODE_TO_INJECT_STRING,
                 MenuHTMLGenerator.generate(session, "customerTickets"));
         model.addAttribute("sessionType", SessionTypeHandler.getCurrentSessionType(session));
         return "customerTickets";
@@ -59,7 +60,7 @@ public class CustomerController {
                                     @RequestParam(name = "fail", required = false) Boolean fail,
                                     HttpSession session) {
         model.addAttribute("fail", fail != null);
-        model.addAttribute("htmlMenuCodeToInject",
+        model.addAttribute(HTML_MENU_CODE_TO_INJECT_STRING,
                 MenuHTMLGenerator.generate(session, "loginAsCustomer"));
         return "loginCustomerPage";
     }
@@ -86,7 +87,8 @@ public class CustomerController {
                                            HttpSession session) {
         model.addAttribute("fail", fail != null);
         model.addAttribute("errorMessage", errorMessage);
-        model.addAttribute("htmlMenuCodeToInject", MenuHTMLGenerator.generate(session, ""));
+        model.addAttribute(HTML_MENU_CODE_TO_INJECT_STRING,
+                MenuHTMLGenerator.generate(session, ""));
         return "customerRegistrationPage";
     }
 
@@ -134,7 +136,8 @@ public class CustomerController {
                                               HttpSession session) {
         model.addAttribute("customer", CustomerHandler.getCustomerOfCurrentSession(session));
         model.addAttribute("user", getUserOfCurrentSession(session));
-        model.addAttribute("htmlMenuCodeToInject", MenuHTMLGenerator.generate(session, ""));
+        model.addAttribute(HTML_MENU_CODE_TO_INJECT_STRING,
+                MenuHTMLGenerator.generate(session, ""));
         return "successCustomerRegistration";
     }
 
@@ -148,7 +151,7 @@ public class CustomerController {
     public String customerInfo(Model model,
                                HttpSession session) {
         model.addAttribute("customer", getCustomerOfCurrentSession(session));
-        model.addAttribute("htmlMenuCodeToInject",
+        model.addAttribute(HTML_MENU_CODE_TO_INJECT_STRING,
                 MenuHTMLGenerator.generate(session, "customerInfo"));
         return "customerInfo";
     }

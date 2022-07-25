@@ -24,9 +24,9 @@ import static ru.job4j.cinema.util.CustomerHandler.getCustomerOfCurrentSession;
 @Controller
 public class TicketController {
 
+    private static final String HTML_MENU_CODE_TO_INJECT_STRING = "htmlMenuCodeToInject";
     private final TicketService ticketService;
     private final SessionService sessionService;
-    private FilmSession currFilmSession;
 
     public TicketController(TicketService ticketService,
                             SessionService sessionService) {
@@ -37,7 +37,8 @@ public class TicketController {
     @GetMapping("/tickets")
     public String tickets(Model model, HttpSession session) {
         model.addAttribute("tickets", ticketService.findAll());
-        model.addAttribute("htmlMenuCodeToInject", MenuHTMLGenerator.generate(session, "tickets"));
+        model.addAttribute(HTML_MENU_CODE_TO_INJECT_STRING,
+                MenuHTMLGenerator.generate(session, "tickets"));
         return "tickets";
     }
 
@@ -51,31 +52,34 @@ public class TicketController {
             return "redirect:/errorWhenSelectSessions";
         }
         model.addAttribute("filmSessions", filmSessionList);
-        model.addAttribute("htmlMenuCodeToInject", MenuHTMLGenerator.generate(session, ""));
+        model.addAttribute(HTML_MENU_CODE_TO_INJECT_STRING,
+                MenuHTMLGenerator.generate(session, ""));
         return "sessionSelection";
     }
 
     @GetMapping("/errorWhenSelectSessions")
     public String errorWhenSelectSessions(Model model, HttpSession session) {
-        model.addAttribute("htmlMenuCodeToInject", MenuHTMLGenerator.generate(session, ""));
+        model.addAttribute(HTML_MENU_CODE_TO_INJECT_STRING,
+                MenuHTMLGenerator.generate(session, ""));
         return "errorWhenSelectSessions";
     }
 
     @GetMapping("/addTicket")
     public String addTicket(Model model,
-                            @ModelAttribute FilmSession filmSession,
+                            @ModelAttribute FilmSession currFilmSession,
                             HttpSession session) {
-        filmSession = sessionService.findById(filmSession.getId()).get();
-        currFilmSession = filmSession;
-        model.addAttribute("filmSession", filmSession);
-        List<Seat> seatList = ticketService.getAvailableSeats(filmSession);
+        currFilmSession = sessionService.findById(currFilmSession.getId()).get();
+        session.setAttribute("currSession", currFilmSession);
+        model.addAttribute("filmSession", currFilmSession);
+        List<Seat> seatList = ticketService.getAvailableSeats(currFilmSession);
         HashMap<String, Seat> seatsMap = new HashMap<>();
         for (Seat seat : seatList) {
             seatsMap.put(seat.toString(), seat);
         }
         session.setAttribute("seatsMap", seatsMap);
         model.addAttribute("seats", seatList);
-        model.addAttribute("htmlMenuCodeToInject", MenuHTMLGenerator.generate(session, ""));
+        model.addAttribute(HTML_MENU_CODE_TO_INJECT_STRING,
+                MenuHTMLGenerator.generate(session, ""));
         return "addTicket";
     }
 
@@ -92,7 +96,7 @@ public class TicketController {
             Seat seatSelected = (Seat) seatsMap.get(seatString);
             ticketService.add(
                     new Ticket(0,
-                            currFilmSession,
+                            (FilmSession) session.getAttribute("currSession"),
                             customer,
                             seatSelected.getRowNum(),
                             seatSelected.getSeatNum()));
@@ -110,7 +114,8 @@ public class TicketController {
 
     @GetMapping("/errorWhenCreateNewTicket")
     public String errorWhenCreateNewTicket(Model model, HttpSession session) {
-        model.addAttribute("htmlMenuCodeToInject", MenuHTMLGenerator.generate(session, ""));
+        model.addAttribute(HTML_MENU_CODE_TO_INJECT_STRING,
+                MenuHTMLGenerator.generate(session, ""));
         return "errorWhenCreateNewTicket";
     }
 }

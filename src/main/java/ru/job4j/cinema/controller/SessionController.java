@@ -19,6 +19,7 @@ import java.util.List;
 @Controller
 public class SessionController {
 
+    private static final String HTML_MENU_CODE_TO_INJECT_STRING = "htmlMenuCodeToInject";
     private final SessionService service;
     private final HallService hallService;
     private final TicketService ticketService;
@@ -41,7 +42,8 @@ public class SessionController {
         }
         model.addAttribute("availableSeats", numOfAvailableSeats);
         model.addAttribute("sessionType", SessionTypeHandler.getCurrentSessionType(session));
-        model.addAttribute("htmlMenuCodeToInject", MenuHTMLGenerator.generate(session, "sessions"));
+        model.addAttribute(HTML_MENU_CODE_TO_INJECT_STRING,
+                MenuHTMLGenerator.generate(session, "sessions"));
         return "sessions";
     }
 
@@ -51,7 +53,8 @@ public class SessionController {
                                     HttpSession session) {
         model.addAttribute("ses", service.findById(id).get());
         model.addAttribute("halls", hallService.findAll());
-        model.addAttribute("htmlMenuCodeToInject", MenuHTMLGenerator.generate(session, "sessions"));
+        model.addAttribute(HTML_MENU_CODE_TO_INJECT_STRING,
+                MenuHTMLGenerator.generate(session, "sessions"));
         return "updateSession";
     }
 
@@ -64,7 +67,8 @@ public class SessionController {
     @GetMapping("/addSession")
     public String addSession(Model model, HttpSession session) {
         model.addAttribute("halls", hallService.findAll());
-        model.addAttribute("htmlMenuCodeToInject", MenuHTMLGenerator.generate(session, "sessions"));
+        model.addAttribute(HTML_MENU_CODE_TO_INJECT_STRING,
+                MenuHTMLGenerator.generate(session, "sessions"));
         return "addSession";
     }
 

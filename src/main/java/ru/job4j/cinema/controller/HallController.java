@@ -16,6 +16,7 @@ import javax.servlet.http.HttpSession;
 @Controller
 public class HallController {
 
+    private static final String HTML_MENU_CODE_TO_INJECT_STRING = "htmlMenuCodeToInject";
     private final HallService hallService;
 
     public HallController(HallService hallService) {
@@ -25,14 +26,16 @@ public class HallController {
     @GetMapping("/halls")
     public String halls(Model model, HttpSession session) {
         model.addAttribute("halls", hallService.findAll());
-        model.addAttribute("htmlMenuCodeToInject", MenuHTMLGenerator.generate(session, "halls"));
+        model.addAttribute(HTML_MENU_CODE_TO_INJECT_STRING,
+                MenuHTMLGenerator.generate(session, "halls"));
         return "halls";
     }
 
     @GetMapping("/updateHall/{hallId}")
     public String formUpdateHall(Model model, HttpSession session, @PathVariable("hallId") int id) {
         model.addAttribute("hall", hallService.findById(id));
-        model.addAttribute("htmlMenuCodeToInject", MenuHTMLGenerator.generate(session, ""));
+        model.addAttribute(HTML_MENU_CODE_TO_INJECT_STRING,
+                MenuHTMLGenerator.generate(session, ""));
         return "updateHall";
     }
 
@@ -45,7 +48,8 @@ public class HallController {
     @GetMapping("/addHall")
     public String addHall(Model model, HttpSession session) {
         model.addAttribute("hall", new Hall(0, "New hall", 1, 1));
-        model.addAttribute("htmlMenuCodeToInject", MenuHTMLGenerator.generate(session, ""));
+        model.addAttribute(HTML_MENU_CODE_TO_INJECT_STRING,
+                MenuHTMLGenerator.generate(session, ""));
         return "addHall";
     }
 
@@ -70,7 +74,8 @@ public class HallController {
                                          @RequestParam(name = "errorMessage",
                                                  defaultValue = "") String errorMessage) {
         model.addAttribute("errorMessage", errorMessage);
-        model.addAttribute("htmlMenuCodeToInject", MenuHTMLGenerator.generate(session, ""));
+        model.addAttribute(HTML_MENU_CODE_TO_INJECT_STRING,
+                MenuHTMLGenerator.generate(session, ""));
         return "errorWhenCreateNewHall";
     }
 
