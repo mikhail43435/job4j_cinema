@@ -63,13 +63,17 @@
             </tbody>
         </table>
     </div>
-    <td><a th:if="${sessionType == 'user'}" th:href="@{|/addSession|}">
-        <button type="submit" class="btn btn-primary">Add new filmSession</button>
-    </a>
-    <td><a th:if="${sessionType == 'guest' || sessionType == 'customer'}" th:href="@{|/sessionSelection|}">
-        <button type="submit" class="btn btn-primary">Buy a new ticket</button>
-    </a>
-    </td>
+    <div>
+        <a th:if="${sessionType == 'guest'}" th:href="@{|/loginCustomerPage|}">
+            <button type="submit" class="btn btn-primary">Buy a new ticket (need to login)</button>
+        </a>
+        <a th:if="${sessionType == 'user'}" th:href="@{|/addSession|}">
+            <button type="submit" class="btn btn-primary">Add new filmSession</button>
+        </a>
+        <a th:if="${sessionType == 'customer'}" th:href="@{|/sessionSelection|}">
+            <button type="submit" class="btn btn-primary">Buy a new ticket</button>
+        </a>
+    </div>
 </div>
 </body>
 </html>
